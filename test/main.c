@@ -37,9 +37,11 @@
 #include <string.h>
 
 #include <libserum/core/memory.h>
+#include <libserum/core/info.h>
 #include <libserum/debug/memdump.h>
 
 #include <libserum/crypto/kdf/pbkdf2-sha2.h>
+#include <libserum/crypto/kdf/scrypt.h>
 #include <libserum/crypto/hmac/hmac-sha2.h>
 
 
@@ -51,17 +53,22 @@ int main(int argc, char *argv[], char *env[]) {
 		printf("Usage: %s <password> <salt> <rounds> <keylen>\n", argv[0]);
 		return 1;
 	} else {
-		size_t pwsz = strlen(argv[1]);
-		size_t stsz = strlen(argv[2]);
+		char *pass = argv[1];
+		size_t pass_size = strlen(pass);
+		char *salt = argv[2];
+		size_t salt_size = strlen(salt);
 		uintmax_t rounds = strtoumax(argv[3], NULL, 10);
-		uintmax_t keysz = strtoumax(argv[4], NULL, 10);
+		uintmax_t r = strtoumax(argv[4], NULL, 10);
+		uintmax_t p = strtoumax(argv[5], NULL, 10);
+		uintmax_t out_size = strtoumax(argv[6], NULL, 10);
 
-		uint8_t stackalloc(key, keysz);
-		ls_pbkdf2_sha2_256(key, keysz, argv[1], pwsz, argv[2], stsz, rounds);
+		uint8_t stackalloc(out, out_size);
+		if (!ls_scrypt(out, out_size, pass, pass_size, salt, salt_size, rounds, r, p, 64575346536).success) {
+			return 1;
+		}
 
-		ls_vmemdump(argv[1], pwsz, "Password:");
-		ls_vmemdump(argv[2], stsz, "Salt:");
-		ls_vmemdump(key, keysz, "Output:");
+		printf("scrypt(\"%s\", \"%s\", %" PRIuMAX ", %" PRIuMAX ", %" PRIuMAX ", %" PRIuMAX ") =\n", pass, salt, rounds, r, p, out_size);
+		ls_memdump(out, out_size);
 	}
 
 	return 0;

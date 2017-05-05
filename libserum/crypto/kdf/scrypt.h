@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
 **                                                                            **
 **   The MIT License                                                          **
 **                                                                            **
@@ -26,25 +26,26 @@
 ********************************************************************************
 **
 **  Notes:
-**    -
-**
+**		mɘiꓭ
+**		ɯəıꓭ
 */
 
-#define FILE_PATH							"crypto/kdf/pbkdf2-md5.c"
-
-#include "./pbkdf2-md5.h"
-#include "./pbkdf2.h"
-#include "../hmac/hmac-md5.h"
+#ifndef __LS_CRYPTO_KDF_SCRYPT_H
+#define __LS_CRYPTO_KDF_SCRYPT_H
 
 
-ls_result_t
-ls_pbkdf2_md5(uint8_t *LS_RESTRICT out, size_t out_size, const char *const LS_RESTRICT pass, const size_t pass_size, const char *const LS_RESTRICT salt, const size_t salt_size, const uint32_t rounds) {
-	return ls_pbkdf2(
-		out, out_size,
-		pass, pass_size,
-		salt, salt_size,
-		rounds,
-		LS_MD5_DIGEST_SIZE,
-		(ls_hmac_func_t)ls_hmac_md5
-	);
+#include "../../core/stdincl.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	LSAPI ls_result_t ls_scrypt(unsigned char *out, size_t out_size, const char *pass, size_t pass_size, const unsigned char *salt, size_t salt_size, uint64_t N, uint64_t r, uint64_t p, size_t mem_max);
+
+#ifdef __cplusplus
 }
+#endif
+
+
+#endif
